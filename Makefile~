@@ -1,0 +1,10 @@
+gcc -O2 -o bme280 bme280.c bme280_support.c -std=c11
+
+
+.PHONY: clean
+
+bme280: bme280.c bme280.h
+	gcc -O2 -o bme280 bme280.c bme280_support.c -std=c11
+
+clean:
+	rm bme280

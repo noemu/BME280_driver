@@ -484,6 +484,6 @@ int main(int argc, char **argv){
     
     result = bme280_data_readout_template();
 
-   printf("Errorcode:  %d\n", result);
+   printf("Errorcode: %d\n", result);
    return 0;
 }
