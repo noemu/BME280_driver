@@ -53,7 +53,11 @@
 /* Includes*/
 /*---------------------------------------------------------------------------*/
 #include "bme280.h"
+#include <unistd.h>
+#include <fcntl.h>
 #include <stdio.h>
+#include <sys/ioctl.h>
+#include <linux/i2c-dev.h>
 
 #define BME280_API
 /*Enable the macro BME280_API to use this support file */
@@ -378,6 +382,8 @@ s8 BME280_I2C_bus_write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
  */
 s8 BME280_I2C_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
 {
+//dep sudo apt-get install gcc libc6-dev
+
 	s32 iError = BME280_INIT_VALUE;
 	u8 array[I2C_BUFFER_LEN] = {BME280_INIT_VALUE};
 	u8 stringpos = BME280_INIT_VALUE;
@@ -391,6 +397,30 @@ s8 BME280_I2C_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
      * In the driver SUCCESS defined as 0
      * and FAILURE defined as -1
 	 */
+    int file;
+    char *filename = "/dev/i2c-1";
+    const char *buffer;
+    
+
+
+    if ((file = open(filename,O_RDWR)) < 0) {
+        printf("Failed to open the bus.");
+        /* ERROR HANDLING; you can check errno to see what went wrong */
+        return (s8)iError-1;
+    }
+
+    if (ioctl(file,I2C_SLAVE,dev_addr) < 0) {
+        printf("Failed to acquire bus access and/or talk to slave.\n");
+        /* ERROR HANDLING; you can check errno to see what went wrong */
+        return (s8)iError-1;
+    }
+
+    if(read(file, array, cnt) != cnt){
+		printf("Failed to read.\n");
+        /* ERROR HANDLING; you can check errno to see what went wrong */
+        return (s8)iError-1;
+	}
+
 	for (stringpos = BME280_INIT_VALUE; stringpos < cnt; stringpos++) {
 		*(reg_data + stringpos) = array[stringpos];
 	}
@@ -429,6 +459,9 @@ s8 BME280_SPI_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
 	* and write string function
 	* For more information please refer data sheet SPI communication:
 	*/
+
+
+
 	for (stringpos = BME280_INIT_VALUE; stringpos < cnt; stringpos++) {
 		*(reg_data + stringpos) = array[stringpos+BME280_DATA_INDEX];
 	}
