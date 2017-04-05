@@ -379,7 +379,7 @@ s8 BME280_I2C_bus_write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
 s8 BME280_I2C_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
 {
 	s32 iError = BME280_INIT_VALUE;
-	u8 array[I2C_BUFFER_LEN] = {i2c_smbus_read_word_data};
+	u8 array[I2C_BUFFER_LEN] = {BME280_INIT_VALUE};
 	u8 stringpos = BME280_INIT_VALUE;
 	array[BME280_INIT_VALUE] = reg_addr;
 	/* Please take the below function as your reference
