@@ -370,6 +370,31 @@ s8 BME280_I2C_bus_write(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
 	* have to be initiated. For that cnt+1 operation done in the I2C write string function
 	* For more information please refer data sheet SPI communication:
 	*/
+
+
+	int file;
+    char *filename = "/dev/i2c-1";
+
+
+
+    if ((file = open(filename,O_RDWR)) < 0) {
+        printf("Failed to open the bus.");
+        /* ERROR HANDLING; you can check errno to see what went wrong */
+        return (s8)iError-1;
+    }
+
+    if (ioctl(file,I2C_SLAVE,dev_addr) < 0) {
+        printf("Failed to acquire bus access and/or talk to slave.\n");
+        /* ERROR HANDLING; you can check errno to see what went wrong */
+        return (s8)iError-1;
+    }
+
+    if(write(file, array, cnt+1) != cnt+1){
+		printf("Failed to write.\n");
+        /* ERROR HANDLING; you can check errno to see what went wrong */
+        return (s8)iError-1;
+	}
+	close(file);
 	return (s8)iError;
 }
 
@@ -399,8 +424,7 @@ s8 BME280_I2C_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
 	 */
     int file;
     char *filename = "/dev/i2c-1";
-    const char *buffer;
-    
+
 
 
     if ((file = open(filename,O_RDWR)) < 0) {
@@ -424,6 +448,7 @@ s8 BME280_I2C_bus_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt)
 	for (stringpos = BME280_INIT_VALUE; stringpos < cnt; stringpos++) {
 		*(reg_data + stringpos) = array[stringpos];
 	}
+	close(file);
 	return (s8)iError;
 }
 
